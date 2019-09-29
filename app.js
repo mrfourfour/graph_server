@@ -15,7 +15,22 @@ const ticketType = new Graphql.GraphQLObjectType({
     qrData:{type:Graphql.GraphQLString}
   }
 });
+const productType = new Graphql.GraphQLObjectType({
+  name:"Product",
+  fields:{
+    id : {type:Graphql.GraphQLString},
+    name:{type:Graphql.GraphQLString},
+    sellerId:{type:Graphql.GraphQLString},
+    image:{type:Graphql.GraphQLString},
+    category:{type:Graphql.GraphQLString},
+    subCategory:{type:Graphql.GraphQLString},
+    info:{type:Graphql.GraphQLString},
+    area:{type:Graphql.GraphQLString},
+    price:{type:Graphql.GraphQLInt},
+    option:{type:Graphql.GraphQLString}
 
+  }
+})
 
 var queryType = new Graphql.GraphQLObjectType({
   name: "Query",
@@ -27,28 +42,44 @@ var queryType = new Graphql.GraphQLObjectType({
         qrData:{type: Graphql.GraphQLString}
       },
       resolve: async function(_,{ qrData,id }){
-        console.log(qrData);
-        console.log(id);
         
-        let res = await (await fetch('http://ticket.ap-northeast-2.elasticbeanstalk.com/api/ticket/'+id)).json();
-        // const data = Object.keys(res).filter(element => {
-        //   console.log(qrData);
-          
-        //   // console.log(res)
-        //   if (res[element].qrData == qrData) {
-            
-        //     return element;
-        //   }
-        // });
+        let res = await (await fetch('http://54.180.170.213/api/ticket/'+id)).json();
         return res.data;
       }
     },
     allTicket:{
       type: new Graphql.GraphQLList(ticketType),
       resolve: async function(_,_,_,_) {
-        const res = await (await fetch('http://ticket.ap-northeast-2.elasticbeanstalk.com/api/ticket')).json();
-        // console.log(res)
+        const res = await (await fetch('http://54.180.170.213/api/ticket')).json(); 
         return  res.data;
+      }
+    },
+    productById:{
+      type: productType,
+      args:{
+        id : {type:Graphql.GraphQLString}
+      },
+      resolve: async function(_,{id}){
+        const res = await (await fetch('http://54.180.170.213/api/product/'+id)).json();
+        return res.data;
+      }
+    },
+    productByCategory:{
+      type: productType,
+      args:{
+        category:{type:Graphql.GraphQLString}
+      },
+      resolve: async function({category}){
+        const res = await (await fetch('http://54.180.170.213/api/product/category/'+category)).json();
+        return res.data;
+      }
+    },
+    product:{
+      type: new Graphql.GraphQLList(productType),
+      resolve: async function(_,_,_){
+        const res = await (await fetch('http://54.180.170.213/api/product')).json();
+
+        return res.data;
       }
     }
   }
