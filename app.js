@@ -43,15 +43,15 @@ var queryType = new Graphql.GraphQLObjectType({
       },
       resolve: async function(_,{ qrData,id }){
         
-        let res = await (await fetch('http://54.180.170.213/api/ticket/'+id)).json();
-        return res.data;
+        let {data} = await (await fetch('http://54.180.170.213/api/ticket/'+id)).json();
+        return data;
       }
     },
     allTicket:{
       type: new Graphql.GraphQLList(ticketType),
       resolve: async function(_,_,_,_) {
-        const res = await (await fetch('http://54.180.170.213/api/ticket')).json(); 
-        return  res.data;
+        const {data} = await (await fetch('http://54.180.170.213/api/ticket')).json(); 
+        return  data;
       }
     },
     productById:{
@@ -60,8 +60,8 @@ var queryType = new Graphql.GraphQLObjectType({
         id : {type:Graphql.GraphQLString}
       },
       resolve: async function(_,{id}){
-        const res = await (await fetch('http://54.180.170.213/api/product/'+id)).json();
-        return res.data;
+        const {data} = await (await fetch('http://54.180.170.213/api/product/'+id)).json();
+        return data;
       }
     },
     productByCategory:{
@@ -70,16 +70,15 @@ var queryType = new Graphql.GraphQLObjectType({
         category:{type:Graphql.GraphQLString}
       },
       resolve: async function({category}){
-        const res = await (await fetch('http://54.180.170.213/api/product/category/'+category)).json();
-        return res.data;
+        const {data} = await (await fetch('http://54.180.170.213/api/product/category/'+category)).json();
+        return data;
       }
     },
     product:{
       type: new Graphql.GraphQLList(productType),
       resolve: async function(_,_,_){
-        const res = await (await fetch('http://54.180.170.213/api/product')).json();
-
-        return res.data;
+        const {data} = await (await fetch('http://54.180.170.213/api/product')).json();
+        return data;
       }
     }
   }
