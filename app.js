@@ -50,7 +50,7 @@ var queryType = new Graphql.GraphQLObjectType({
     allTicket:{
       type: new Graphql.GraphQLList(ticketType),
       resolve: async function(_,_,_,_) {
-        const {data} = await (await fetch('http://54.180.170.213/api/ticket')).json(); 
+        const {data} = await (await fetch('http://54.180.170.213/api/ticket')).json();
         return  data;
       }
     },
@@ -65,12 +65,13 @@ var queryType = new Graphql.GraphQLObjectType({
       }
     },
     productByCategory:{
-      type: productType,
+      type: new Graphql.GraphQLList(productType),
       args:{
-        category:{type:Graphql.GraphQLString}
+        category : {type:Graphql.GraphQLString}
       },
-      resolve: async function({category}){
+      resolve: async function(_,{category}){
         const {data} = await (await fetch('http://54.180.170.213/api/product/category/'+category)).json();
+        console.log(data);
         return data;
       }
     },
