@@ -31,6 +31,12 @@ const productType = new Graphql.GraphQLObjectType({
 
   }
 })
+// const categoryType = new Graphql.GraphQLObjectType({
+//   name:"category",
+//   fields:{
+//     cate = {type:Graphql.GraphQLString}
+//   }
+// })
 
 var queryType = new Graphql.GraphQLObjectType({
   name: "Query",
@@ -64,17 +70,44 @@ var queryType = new Graphql.GraphQLObjectType({
         return data;
       }
     },
+    // /api/product/area/{area}/category/{category}
     productByCategory:{
       type: new Graphql.GraphQLList(productType),
       args:{
+        area : {type:Graphql.GraphQLString},
         category : {type:Graphql.GraphQLString}
       },
-      resolve: async function(_,{category}){
-        const {data} = await (await fetch('http://54.180.170.213/api/product/category/'+category)).json();
-        console.log(data);
+      resolve: async function(_,{area, category}){
+        const {data} = await (await fetch('http://54.180.170.213/api/product/area/'+area+'/category/'+category)).json();
         return data;
       }
     },
+    categoryList:{
+      type : new Graphql.GraphQLList(Graphql.GraphQLString),
+      resolve: async function(_,_){
+        const data = await (await fetch('http://54.180.170.213/api/category/')).json();
+        console.log(data)
+        return data;
+      }
+    },
+    areaList:{
+      type : new Graphql.GraphQLList(Graphql.GraphQLString),
+      resolve: async function(_,_){
+        const data = await (await fetch('http://54.180.170.213/api/area/')).json();
+        console.log(data)
+        return data;
+      }
+    },
+    // productByCategory:{
+    //   type: new Graphql.GraphQLList(productType),
+    //   args:{
+    //     category : {type:Graphql.GraphQLString}
+    //   },
+    //   resolve: async function(_,{category}){
+    //     const {data} = await (await fetch('http://54.180.170.213/api/product/category/'+category)).json();
+    //     return data;
+    //   }
+    // },
     product:{
       type: new Graphql.GraphQLList(productType),
       resolve: async function(_,_,_){
