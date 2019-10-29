@@ -4,31 +4,51 @@ var Graphql = require("graphql");
 var fetch = require("node-fetch");
 
 const ticketType = new Graphql.GraphQLObjectType({
-  name:"Ticket",
-  fields:{
-    id : {type:Graphql.GraphQLString},
-    status : {type:Graphql.GraphQLString},
-    amount : {type:Graphql.GraphQLInt},
-    totalPrice: {type:Graphql.GraphQLInt},
-    productId:{type:Graphql.GraphQLString},
-    date:{type:Graphql.GraphQLString},
-    qrData:{type:Graphql.GraphQLString}
+  name: "Ticket",
+  fields: {
+    id: { type: Graphql.GraphQLString },
+    status: { type: Graphql.GraphQLString },
+    amount: { type: Graphql.GraphQLInt },
+    totalPrice: { type: Graphql.GraphQLInt },
+    productId: { type: Graphql.GraphQLString },
+    userId:{type:Graphql.GraphQLString},
+    optionId:{type:Graphql.GraphQLString},
+    date: { type: Graphql.GraphQLString },
+    qrData: { type: Graphql.GraphQLString }
   }
 });
-const productType = new Graphql.GraphQLObjectType({
-  name:"Product",
+const productOptionsType = new Graphql.GraphQLObjectType({
+  name: "pOptions",
+  fields: {
+    id:{type:Graphql.GraphQLString},
+    description:{type:Graphql.GraphQLString},
+    date:{type:Graphql.GraphQLString},
+    amout:{type:Graphql.GraphQLInt}
+  }
+})
+const reviewsType = new Graphql.GraphQLObjectType({
+  name:"Review",
   fields:{
-    id : {type:Graphql.GraphQLString},
-    name:{type:Graphql.GraphQLString},
-    sellerId:{type:Graphql.GraphQLString},
-    image:{type:Graphql.GraphQLString},
-    category:{type:Graphql.GraphQLString},
-    subCategory:{type:Graphql.GraphQLString},
-    info:{type:Graphql.GraphQLString},
-    area:{type:Graphql.GraphQLString},
-    price:{type:Graphql.GraphQLInt},
-    option:{type:Graphql.GraphQLString}
-
+    userid:{type:Graphql.GraphQLString},
+    title:{type:Graphql.GraphQLString},
+    description:{type:Graphql.GraphQLString},
+    rate:{type:Graphql.GraphQLInt}
+  }
+})
+const productType = new Graphql.GraphQLObjectType({
+  name: "Product",
+  fields: {
+    id: { type: Graphql.GraphQLString },
+    name: { type: Graphql.GraphQLString },
+    sellerId: { type: Graphql.GraphQLString },
+    image: { type: Graphql.GraphQLString },
+    category: { type: Graphql.GraphQLString },
+    subCategory: { type: Graphql.GraphQLString },
+    info: { type: Graphql.GraphQLString },
+    area: { type: Graphql.GraphQLString },
+    price: { type: Graphql.GraphQLInt },
+    options: { type: Graphql.GraphQLList(productOptionsType) },
+    reviews:{type:Graphql.GraphQLList(reviewsType)}
   }
 })
 // const categoryType = new Graphql.GraphQLObjectType({
@@ -41,58 +61,58 @@ const productType = new Graphql.GraphQLObjectType({
 var queryType = new Graphql.GraphQLObjectType({
   name: "Query",
   fields: {
-    ticket:{
+    ticket: {
       type: ticketType,
-      args:{
-        id:{type: Graphql.GraphQLString},
-        qrData:{type: Graphql.GraphQLString}
+      args: {
+        id: { type: Graphql.GraphQLString },
+        qrData: { type: Graphql.GraphQLString }
       },
-      resolve: async function(_,{ qrData,id }){
-        
-        let {data} = await (await fetch('http://54.180.170.213/api/ticket/'+id)).json();
+      resolve: async function (_, { qrData, id }) {
+
+        let { data } = await (await fetch('http://54.180.170.213/api/ticket/' + id)).json();
         return data;
       }
     },
-    allTicket:{
+    allTicket: {
       type: new Graphql.GraphQLList(ticketType),
-      resolve: async function(_,_,_,_) {
-        const {data} = await (await fetch('http://54.180.170.213/api/ticket')).json();
-        return  data;
+      resolve: async function (_, _, _, _) {
+        const { data } = await (await fetch('http://54.180.170.213/api/ticket')).json();
+        return data;
       }
     },
-    productById:{
+    productById: {
       type: productType,
-      args:{
-        id : {type:Graphql.GraphQLString}
+      args: {
+        id: { type: Graphql.GraphQLString }
       },
-      resolve: async function(_,{id}){
-        const {data} = await (await fetch('http://54.180.170.213/api/product/'+id)).json();
+      resolve: async function (_, { id }) {
+        const { data } = await (await fetch('http://54.180.170.213/api/product/' + id)).json();
         return data;
       }
     },
     // /api/product/area/{area}/category/{category}
-    productByCategory:{
+    productByCategory: {
       type: new Graphql.GraphQLList(productType),
-      args:{
-        area : {type:Graphql.GraphQLString},
-        category : {type:Graphql.GraphQLString}
+      args: {
+        area: { type: Graphql.GraphQLString },
+        category: { type: Graphql.GraphQLString }
       },
-      resolve: async function(_,{area, category}){
-        const {data} = await (await fetch('http://54.180.170.213/api/product/area/'+area+'/category/'+category)).json();
+      resolve: async function (_, { area, category }) {
+        const { data } = await (await fetch('http://54.180.170.213/api/product/area/' + area + '/category/' + category)).json();
         return data;
       }
     },
-    categoryList:{
-      type : new Graphql.GraphQLList(Graphql.GraphQLString),
-      resolve: async function(_,_){
+    categoryList: {
+      type: new Graphql.GraphQLList(Graphql.GraphQLString),
+      resolve: async function (_, _) {
         const data = await (await fetch('http://54.180.170.213/api/category/')).json();
         console.log(data)
         return data;
       }
     },
-    areaList:{
-      type : new Graphql.GraphQLList(Graphql.GraphQLString),
-      resolve: async function(_,_){
+    areaList: {
+      type: new Graphql.GraphQLList(Graphql.GraphQLString),
+      resolve: async function (_, _) {
         const data = await (await fetch('http://54.180.170.213/api/area/')).json();
         console.log(data)
         return data;
@@ -108,10 +128,10 @@ var queryType = new Graphql.GraphQLObjectType({
     //     return data;
     //   }
     // },
-    product:{
+    product: {
       type: new Graphql.GraphQLList(productType),
-      resolve: async function(_,_,_){
-        const {data} = await (await fetch('http://54.180.170.213/api/product')).json();
+      resolve: async function (_, _, _) {
+        const { data } = await (await fetch('http://54.180.170.213/api/product')).json();
         return data;
       }
     }
