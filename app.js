@@ -2,7 +2,7 @@ var express = require("express");
 var graphqlHTTP = require("express-graphql");
 var Graphql = require("graphql");
 var fetch = require("node-fetch");
-
+const url = 'http://ticket.ap-northeast-2.elasticbeanstalk.com'
 const ticketType = new Graphql.GraphQLObjectType({
   name: "Ticket",
   fields: {
@@ -69,14 +69,14 @@ var queryType = new Graphql.GraphQLObjectType({
       },
       resolve: async function (_, { qrData, id }) {
 
-        let { data } = await (await fetch('http://54.180.170.213/api/ticket/' + id)).json();
+        let { data } = await (await fetch(url+'/api/ticket/' + id)).json();
         return data;
       }
     },
     allTicket: {
       type: new Graphql.GraphQLList(ticketType),
       resolve: async function (_, _, _, _) {
-        const { data } = await (await fetch('http://54.180.170.213/api/ticket')).json();
+        const { data } = await (await fetch(url+'/api/ticket')).json();
         return data;
       }
     },
@@ -86,7 +86,7 @@ var queryType = new Graphql.GraphQLObjectType({
         id: { type: Graphql.GraphQLString }
       },
       resolve: async function (_, { id }) {
-        const { data } = await (await fetch('http://54.180.170.213/api/product/' + id)).json();
+        const { data } = await (await fetch(url+'/api/product/' + id)).json();
         return data;
       }
     },
@@ -98,14 +98,14 @@ var queryType = new Graphql.GraphQLObjectType({
         category: { type: Graphql.GraphQLString }
       },
       resolve: async function (_, { area, category }) {
-        const { data } = await (await fetch('http://54.180.170.213/api/product/area/' + area + '/category/' + category)).json();
+        const { data } = await (await fetch(url+'/api/product/area/' + area + '/category/' + category)).json();
         return data;
       }
     },
     categoryList: {
       type: new Graphql.GraphQLList(Graphql.GraphQLString),
       resolve: async function (_, _) {
-        const data = await (await fetch('http://54.180.170.213/api/category/')).json();
+        const data = await (await fetch(url+'/api/category/')).json();
         console.log(data)
         return data;
       }
@@ -113,7 +113,7 @@ var queryType = new Graphql.GraphQLObjectType({
     areaList: {
       type: new Graphql.GraphQLList(Graphql.GraphQLString),
       resolve: async function (_, _) {
-        const data = await (await fetch('http://54.180.170.213/api/area/')).json();
+        const data = await (await fetch(url+'/api/area/')).json();
         console.log(data)
         return data;
       }
@@ -124,14 +124,14 @@ var queryType = new Graphql.GraphQLObjectType({
     //     category : {type:Graphql.GraphQLString}
     //   },
     //   resolve: async function(_,{category}){
-    //     const {data} = await (await fetch('http://54.180.170.213/api/product/category/'+category)).json();
+    //     const {data} = await (await fetch(url+'/api/product/category/'+category)).json();
     //     return data;
     //   }
     // },
     product: {
       type: new Graphql.GraphQLList(productType),
       resolve: async function (_, _, _) {
-        const { data } = await (await fetch('http://54.180.170.213/api/product')).json();
+        const { data } = await (await fetch(url+'/api/product')).json();
         return data;
       }
     }
