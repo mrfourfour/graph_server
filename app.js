@@ -2,7 +2,10 @@ var express = require("express");
 var graphqlHTTP = require("express-graphql");
 var Graphql = require("graphql");
 var fetch = require("node-fetch");
+const token = "eyJraWQiOiJ6bXJWT2pyU0s0aDZlVjRMTlRtaG5UUFV2RjkwbHVqUHVyUmsyK0RyWjNZPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyNmQ1YmFiOS0xMzhlLTQ4YjktOWVjNC0xOTBhZDE2YWQ0ODEiLCJ0b2tlbl91c2UiOiJhY2Nlc3MiLCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIiwiYXV0aF90aW1lIjoxNTcyNTA4NzA2LCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuYXAtbm9ydGhlYXN0LTIuYW1hem9uYXdzLmNvbVwvYXAtbm9ydGhlYXN0LTJfdHhHQU1RZUk0IiwiZXhwIjoxNTcyNTEyMzA2LCJpYXQiOjE1NzI1MDg3MDYsInZlcnNpb24iOjIsImp0aSI6IjkyYTU1Zjk2LTgzMGUtNGUxMi05ZjI3LTZmMWJiMzhlMjJiYSIsImNsaWVudF9pZCI6IjU2bXFuZDgxODVrcTJ2bjZ1MnF0YWhkNzNiIiwidXNlcm5hbWUiOiJ0ZXN0In0.JNYcpYxUUv8zcRzpQ0LApoeTpTsqoJE53aKGFcaDhxVBdfXXqQUg1j8qdAJKXfa4776RACWQ_7HlSlE2zmzZphcu49LDHZjo9tdJOfokKGdfXT4C6yvVZWyjTvIBOMpRiclLaNSSVr41y2cFU6OTdHLBXXBQAsovcl6cnXdZLXucYJnAdNMkmOSq_vrxt0FlnSwnI7IJYLxz353oMhQwkHTixTRa9hoaKy-tMCFzW54Z760Hxm-0tHxbEGtELaJyX5efPkmLDQEcO1brVHOky_QYb25ZRvMg0Q5mnLmsKtn17GbX9JVyVzQihrXaoPGti_qGe_8zTrpJ-dzv-b6KQQ"
 const url = 'http://ticket.ap-northeast-2.elasticbeanstalk.com'
+
+
 const ticketType = new Graphql.GraphQLObjectType({
   name: "Ticket",
   fields: {
@@ -57,7 +60,6 @@ const productType = new Graphql.GraphQLObjectType({
 //     cate = {type:Graphql.GraphQLString}
 //   }
 // })
-
 var queryType = new Graphql.GraphQLObjectType({
   name: "Query",
   fields: {
@@ -67,16 +69,18 @@ var queryType = new Graphql.GraphQLObjectType({
         id: { type: Graphql.GraphQLString },
         qrData: { type: Graphql.GraphQLString }
       },
-      resolve: async function (_, { qrData, id }) {
+      resolve: async function (_, { qrData, id },key) {
 
-        let { data } = await (await fetch(url+'/api/ticket/' + id)).json();
+        let { data } = await (await fetch(url+'/api/ticket/' + id,{headers:{"Authorization":"Bearer "+key.headers['authorization'],'Content-Type': 'application/json'}})).json();
         return data;
       }
     },
     allTicket: {
       type: new Graphql.GraphQLList(ticketType),
-      resolve: async function (_, _, _, _) {
-        const { data } = await (await fetch(url+'/api/ticket')).json();
+      resolve: async function (_, _, key) {
+        console.log(key.headers);
+        
+        const { data } = await (await fetch(url+'/api/ticket',{headers:{"Authorization":"Bearer "+key.headers['authorization'],'Content-Type': 'application/json'}})).json();
         return data;
       }
     },
@@ -85,8 +89,8 @@ var queryType = new Graphql.GraphQLObjectType({
       args: {
         id: { type: Graphql.GraphQLString }
       },
-      resolve: async function (_, { id }) {
-        const { data } = await (await fetch(url+'/api/product/' + id)).json();
+      resolve: async function (_, { id },key) {
+        const { data } = await (await fetch(url+'/api/product/' + id,{headers:{"Authorization":"Bearer "+key.headers['authorization'],'Content-Type': 'application/json'}})).json();
         return data;
       }
     },
@@ -97,56 +101,61 @@ var queryType = new Graphql.GraphQLObjectType({
         area: { type: Graphql.GraphQLString },
         category: { type: Graphql.GraphQLString }
       },
-      resolve: async function (_, { area, category }) {
-        const { data } = await (await fetch(url+'/api/product/area/' + area + '/category/' + category)).json();
+      resolve: async function (_, args,key) {
+        const {area, category} = args
+        const { data } = await (await fetch(url+'/api/product/area/' + area + '/category/' + category,{headers:{"Authorization":"Bearer "+key.headers['authorization'],'Content-Type': 'application/json'}})).json();
         return data;
       }
     },
     categoryList: {
       type: new Graphql.GraphQLList(Graphql.GraphQLString),
-      resolve: async function (_, _) {
-        const data = await (await fetch(url+'/api/category/')).json();
-        console.log(data)
+      resolve: async function (_, _,key) {
+        // console.log();
+        
+        const data = await (await fetch(url+'/api/category/',{method:"get",headers:{"Authorization":"Bearer "+key.headers['authorization'],'Content-Type': 'application/json'}})).json();
         return data;
       }
     },
     areaList: {
       type: new Graphql.GraphQLList(Graphql.GraphQLString),
-      resolve: async function (_, _) {
-        const data = await (await fetch(url+'/api/area/')).json();
-        console.log(data)
+      resolve: async function (post,args,key) {
+        // console.log(key,args,post);
+        
+        // console.log(key.headers['authorization']);
+        // console.log(info);
+        const data = await (await fetch(url+'/api/area/',{headers:{"Authorization":"Bearer "+key.headers['authorization'],'Content-Type': 'application/json'}})).json();
+        
+        // console.log("여기옴 지역리스트")
+        // console.log(data);
+        
         return data;
       }
     },
-    // productByCategory:{
-    //   type: new Graphql.GraphQLList(productType),
-    //   args:{
-    //     category : {type:Graphql.GraphQLString}
-    //   },
-    //   resolve: async function(_,{category}){
-    //     const {data} = await (await fetch(url+'/api/product/category/'+category)).json();
-    //     return data;
-    //   }
-    // },
     product: {
       type: new Graphql.GraphQLList(productType),
-      resolve: async function (_, _, _) {
-        const { data } = await (await fetch(url+'/api/product')).json();
+      resolve: async function (post,args,key) {
+        // console.log("여기옴 프로덕트");
+        // console.log(key);
+        
+        const { data } = await (await fetch(url+'/api/product',{headers:{"Authorization":"Bearer "+key.headers['authorization'],'Content-Type': 'application/json'}})).json();
+
         return data;
       }
     }
   }
 });
 
-var schema = new Graphql.GraphQLSchema({ query: queryType });
+var schema = new Graphql.GraphQLSchema({ query: queryType});
 
 var app = express();
-app.use(
-  "/graphql",
-  graphqlHTTP({
-    schema: schema,
-    graphiql: true
-  })
-);
+
+app.use('/', graphqlHTTP((req)=>{
+  return {
+      schema: schema,
+      graphiql: true,
+      rootValue: {},
+      key: req.headers,
+  };
+}));
 app.listen(4000);
 console.log("Running a GraphQL server");
