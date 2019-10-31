@@ -2,7 +2,6 @@ var express = require("express");
 var graphqlHTTP = require("express-graphql");
 var Graphql = require("graphql");
 var fetch = require("node-fetch");
-const token = "eyJraWQiOiJ6bXJWT2pyU0s0aDZlVjRMTlRtaG5UUFV2RjkwbHVqUHVyUmsyK0RyWjNZPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyNmQ1YmFiOS0xMzhlLTQ4YjktOWVjNC0xOTBhZDE2YWQ0ODEiLCJ0b2tlbl91c2UiOiJhY2Nlc3MiLCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIiwiYXV0aF90aW1lIjoxNTcyNTA4NzA2LCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuYXAtbm9ydGhlYXN0LTIuYW1hem9uYXdzLmNvbVwvYXAtbm9ydGhlYXN0LTJfdHhHQU1RZUk0IiwiZXhwIjoxNTcyNTEyMzA2LCJpYXQiOjE1NzI1MDg3MDYsInZlcnNpb24iOjIsImp0aSI6IjkyYTU1Zjk2LTgzMGUtNGUxMi05ZjI3LTZmMWJiMzhlMjJiYSIsImNsaWVudF9pZCI6IjU2bXFuZDgxODVrcTJ2bjZ1MnF0YWhkNzNiIiwidXNlcm5hbWUiOiJ0ZXN0In0.JNYcpYxUUv8zcRzpQ0LApoeTpTsqoJE53aKGFcaDhxVBdfXXqQUg1j8qdAJKXfa4776RACWQ_7HlSlE2zmzZphcu49LDHZjo9tdJOfokKGdfXT4C6yvVZWyjTvIBOMpRiclLaNSSVr41y2cFU6OTdHLBXXBQAsovcl6cnXdZLXucYJnAdNMkmOSq_vrxt0FlnSwnI7IJYLxz353oMhQwkHTixTRa9hoaKy-tMCFzW54Z760Hxm-0tHxbEGtELaJyX5efPkmLDQEcO1brVHOky_QYb25ZRvMg0Q5mnLmsKtn17GbX9JVyVzQihrXaoPGti_qGe_8zTrpJ-dzv-b6KQQ"
 const url = 'http://ticket.ap-northeast-2.elasticbeanstalk.com'
 
 
@@ -38,6 +37,7 @@ const reviewsType = new Graphql.GraphQLObjectType({
     rate:{type:Graphql.GraphQLInt}
   }
 })
+
 const productType = new Graphql.GraphQLObjectType({
   name: "Product",
   fields: {
@@ -60,6 +60,7 @@ const productType = new Graphql.GraphQLObjectType({
 //     cate = {type:Graphql.GraphQLString}
 //   }
 // })
+
 var queryType = new Graphql.GraphQLObjectType({
   name: "Query",
   fields: {
@@ -138,14 +139,41 @@ var queryType = new Graphql.GraphQLObjectType({
         // console.log(key);
         
         const { data } = await (await fetch(url+'/api/product',{headers:{"Authorization":"Bearer "+key.headers['authorization'],'Content-Type': 'application/json'}})).json();
-
+        console.log(data)
         return data;
       }
     }
   }
 });
 
-var schema = new Graphql.GraphQLSchema({ query: queryType});
+const mutation = new Graphql.GraphQLObjectType({
+  name: 'Mutation',
+  fields: {
+    makeTicket: {
+      type: ticketType,
+      args:{
+        amount: { type: Graphql.GraphQLInt },
+        totalPrice: { type: Graphql.GraphQLInt },
+        productId: { type: Graphql.GraphQLString },
+        optionId:{type:Graphql.GraphQLString},
+      },
+      resolve: async function(parentValue, args, key) {
+        console.log(args);
+        data = await (await fetch(url+'/api/ticket/',{
+          headers:{
+            "Content-type": "application/json",
+            "Authorization": "Bearer "+key.headers['authorization']
+          },
+          method:'post',
+          body:JSON.stringify(args)
+        })).json()
+        console.log(data);
+        return data
+      }
+    }
+  }
+})
+var schema = new Graphql.GraphQLSchema({ query: queryType, mutation: mutation});
 
 var app = express();
 
