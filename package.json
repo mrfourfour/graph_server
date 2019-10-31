@@ -1,0 +1,27 @@
+{
+  "name": "mr44",
+  "version": "1.0.0",
+  "description": "hello",
+  "main": "app.js",
+  "dependencies": {
+    "express-graphql": "^0.9.0",
+    "express": "^4.17.1",
+    "graphql": "^14.5.7",
+    "node-fetch": "^2.6.0",
+    "request": "^2.88.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrfourfour/graph_server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mrfourfour/graph_server/issues"
+  },
+  "homepage": "https://github.com/mrfourfour/graph_server#readme"
+}
